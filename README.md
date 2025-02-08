@@ -31,7 +31,7 @@ PlatformIO IDE
   * 使用したライブラリ
     * [IcsClass_V210](https://kondo-robot.com/faq/ics-library-a2)
       * [krs3301](https://kondo-robot.com/product/krs-3301-ics)を動かすために利用
-      * どのように利用するかは[環境構築・動作手順書](./setup.md)に記述予定
+      * どのように利用するかは[環境構築・動作手順書](./setup.md)に記述
     * ESP32Servo
       * pwmサーボを動かすために利用
 * その他のproject
