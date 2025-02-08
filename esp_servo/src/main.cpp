@@ -185,8 +185,8 @@ ported for sparkfun esp32
 
 #include <WiFi.h>
 
-const char *ssid = "cosmos";
-const char *password = "j809vvbao12a";
+const char *ssid = "*****";
+const char *password = "******";
 
 WiFiServer server(80); // NetworkServerという名前の型は存在しないので、WiFiServerにする必要がある
 
@@ -269,8 +269,8 @@ void loop() {
 // #include "WiFi.h"
 
 // // WiFi credentials.
-// const char* WIFI_SSID = "cosmos";
-// const char* WIFI_PASS = "j809vvbao12a";
+// const char* WIFI_SSID = "*******";
+// const char* WIFI_PASS = "********";
 
 // void setup()
 // {
