@@ -2,8 +2,8 @@
 
 #include <WiFi.h>
 
-const char *ssid = "cosmos";
-const char *password = "j809vvbao12a";
+const char *ssid = "******";
+const char *password = "********";
 
 WiFiServer server(80); // NetworkServerという名前の型は存在しないので、WiFiServerにする必要がある
 

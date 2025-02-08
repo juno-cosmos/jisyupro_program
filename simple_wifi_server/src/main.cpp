@@ -2,8 +2,8 @@
 #include "WiFi.h"
 #include <IcsHardSerialClass.h>
 
-const char *ssid = "cosmos";
-const char *password = "j809vvbao12a";
+const char *ssid = "*****";
+const char *password = "*******";
 
 WiFiServer server(80);
 
