@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Web Joystick</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: #222;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .joystick-container {
+      width: 200px;
+      height: 200px;
+      background: #333;
+      border-radius: 50%;
+      position: relative;
+      touch-action: none;
+    }
+    .stick {
+      width: 80px;
+      height: 80px;
+      background: #888;
+      border-radius: 50%;
+      position: absolute;
+      top: 60px;
+      left: 60px;
+      transition: 0.1s ease;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="joystick-container" id="joystick">
+    <div class="stick" id="stick"></div>
+  </div>
+
+  <script>
+    const joystick = document.getElementById("joystick");
+    const stick = document.getElementById("stick");
+
+    const center = {
+      x: joystick.offsetWidth / 2,
+      y: joystick.offsetHeight / 2
+    };
+
+    let active = false;
+
+    const updateStick = (x, y) => {
+      const dx = x - center.x;
+      const dy = y - center.y;
+      const distance = Math.min(Math.sqrt(dx * dx + dy * dy), 60); // 最大半径60
+      const angle = Math.atan2(dy, dx);
+
+      const stickX = Math.cos(angle) * distance;
+      const stickY = Math.sin(angle) * distance;
+
+      stick.style.transform = `translate(${stickX}px, ${stickY}px)`;
+
+      // 出力: 正規化されたベクトル（-1 ～ 1）
+      const normX = (stickX / 60).toFixed(2);
+      const normY = (stickY / 60).toFixed(2);
+      console.log(`X: ${normX}, Y: ${normY}`);
+    };
+
+    const resetStick = () => {
+      stick.style.transform = `translate(0px, 0px)`;
+    };
+
+    const getEventPos = (e) => {
+      if (e.touches) return { x: e.touches[0].clientX - joystick.getBoundingClientRect().left, y: e.touches[0].clientY - joystick.getBoundingClientRect().top };
+      return { x: e.clientX - joystick.getBoundingClientRect().left, y: e.clientY - joystick.getBoundingClientRect().top };
+    };
+
+    joystick.addEventListener("mousedown", (e) => {
+      active = true;
+      updateStick(...Object.values(getEventPos(e)));
+    });
+
+    joystick.addEventListener("touchstart", (e) => {
+      active = true;
+      updateStick(...Object.values(getEventPos(e)));
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (active) updateStick(...Object.values(getEventPos(e)));
+    });
+
+    window.addEventListener("touchmove", (e) => {
+      if (active) updateStick(...Object.values(getEventPos(e)));
+    });
+
+    window.addEventListener("mouseup", () => {
+      active = false;
+      resetStick();
+    });
+
+    window.addEventListener("touchend", () => {
+      active = false;
+      resetStick();
+    });
+  </script>
+</body>
+</html>

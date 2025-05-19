@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>Dual Joystick</title>
+        <style>
+body {
+    margin: 0;
+    height: 100vh;
+    background: #111;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    box-sizing: border-box;
+}
+    .joystick-container {
+        width: 200px;
+        height: 200px;
+        background: #333;
+        border-radius: 50%;
+        position: relative;
+        touch-action: none;
+    }
+    .stick {
+        width: 80px;
+        height: 80px;
+        background: #888;
+        border-radius: 50%;
+        position: absolute;
+        top: 60px;
+        left: 60px;
+        transition: 0.1s ease;
+        pointer-events: none;
+    }
+        </style>
+    </head>
+    <body>
+        <!-- 左ジョイスティック（左右方向のみ） -->
+        <div class="joystick-container" id="joystick-left">
+            <div class="stick" id="stick-left"></div>
+        </div>
+
+        <!-- 右ジョイスティック（全方向） -->
+        <div class="joystick-container" id="joystick-right">
+            <div class="stick" id="stick-right"></div>
+        </div>
+
+        <script>
+            function setupJoystick(containerId, stickId, restrict = 'none') {
+                const joystick = document.getElementById(containerId);
+                const stick = document.getElementById(stickId);
+                const center = {
+                    x: joystick.offsetWidth / 2,
+                    y: joystick.offsetHeight / 2
+                };
+                const joystickValues = {
+                    left: { x: 0, y: 0 },
+                    right: { x: 0, y: 0 },
+                };
+                let active = false;
+
+                const updateStick = (x, y) => {
+                    const dx = x - center.x;
+                    const dy = y - center.y;
+
+                    let stickX = dx;
+                    let stickY = dy;
+
+                    const maxRadius = 60;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const angle = Math.atan2(dy, dx);
+
+                    if (restrict === 'horizontal') {
+                        stickX = Math.max(-maxRadius, Math.min(dx, maxRadius));
+                        stickY = 0;
+                    } else {
+                        // unrestricted
+                        if (distance > maxRadius) {
+                            stickX = Math.cos(angle) * maxRadius;
+                            stickY = Math.sin(angle) * maxRadius;
+                        }
+                    }
+
+                    stick.style.transform = `translate(${stickX}px, ${stickY}px)`;
+
+                    // 正規化された出力（-1 ~ 1）
+                    const normX = (stickX / maxRadius).toFixed(2);
+                    const normY = (stickY / maxRadius).toFixed(2);
+                    console.log(`${containerId} => X: ${normX}, Y: ${normY}`); // debug
+                    joystickValues[containerId === "joystick-left" ? "left" : "right"] = {
+                        x: parseFloat(normX),
+                        y: parseFloat(normY)
+                    };
+                };
+
+                const resetStick = () => {
+                    stick.style.transform = `translate(0px, 0px)`;
+                };
+
+                const getEventPos = (e) => {
+                    const rect = joystick.getBoundingClientRect();
+                    if (e.touches) {
+                        return {
+                            x: e.touches[0].clientX - rect.left,
+                            y: e.touches[0].clientY - rect.top
+                        };
+                    }
+                    return {
+                        x: e.clientX - rect.left,
+                        y: e.clientY - rect.top
+                    };
+                };
+
+                joystick.addEventListener("mousedown", (e) => {
+                    active = true;
+                    updateStick(...Object.values(getEventPos(e)));
+                });
+
+                joystick.addEventListener("touchstart", (e) => {
+                    active = true;
+                    updateStick(...Object.values(getEventPos(e)));
+                });
+
+                window.addEventListener("mousemove", (e) => {
+                    if (active) updateStick(...Object.values(getEventPos(e)));
+                });
+
+                window.addEventListener("touchmove", (e) => {
+                    if (active) updateStick(...Object.values(getEventPos(e)));
+                });
+
+                window.addEventListener("mouseup", () => {
+                    active = false;
+                    resetStick();
+                });
+
+                window.addEventListener("touchend", () => {
+                    active = false;
+                    resetStick();
+                });
+            }
+
+            // 左: 横方向限定, 右: 全方向
+            setupJoystick("joystick-left", "stick-left", "horizontal");
+            setupJoystick("joystick-right", "stick-right", "free");
+        </script>
+    </body>
+</html>
