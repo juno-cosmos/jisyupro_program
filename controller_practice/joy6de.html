@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>6方向スティック</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #222;
+      color: white;
+      font-family: sans-serif;
+      margin: 0;
+    }
+    #joystickArea {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      background: #333;
+      border-radius: 50%;
+      touch-action: none;
+    }
+    #stick {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background: #888;
+      border-radius: 50%;
+      top: 70px;
+      left: 70px;
+      pointer-events: none;
+      transition: 0.05s;
+    }
+    #output {
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: #0f0;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="joystickArea">
+    <div id="stick"></div>
+  </div>
+  <div id="output">方向: なし</div>
+
+  <script>
+    const joystick = document.getElementById('joystickArea');
+    const stick = document.getElementById('stick');
+    const output = document.getElementById('output');
+
+    const center = { x: 100, y: 100 }; // 中心座標（joystickエリア中心）
+
+    function getDirectionFromAngle(angle) {
+      // 角度（度）を 6 方向に分類
+      const directions = ['up', 'up-right', 'down-right', 'down', 'down-left', 'up-left'];
+      let deg = angle * 180 / Math.PI;
+      if (deg < 0) deg += 360;
+      const index = Math.round(deg / 60) % 6;
+      return directions[index];
+    }
+
+    function updateStick(dx, dy) {
+      const maxDist = 60;
+      const dist = Math.min(Math.sqrt(dx * dx + dy * dy), maxDist);
+      const angle = Math.atan2(dy, dx);
+      const x = dist * Math.cos(angle);
+      const y = dist * Math.sin(angle);
+      stick.style.left = `${center.x - 30 + x}px`;
+      stick.style.top = `${center.y - 30 + y}px`;
+
+      if (dist > 10) {
+        const dir = getDirectionFromAngle(angle);
+        output.textContent = '方向: ' + dir;
+      } else {
+        output.textContent = '方向: なし';
+      }
+    }
+
+    function resetStick() {
+      stick.style.left = '70px';
+      stick.style.top = '70px';
+      output.textContent = '方向: なし';
+    }
+
+    function handleMove(clientX, clientY) {
+      const rect = joystick.getBoundingClientRect();
+      const dx = clientX - (rect.left + center.x);
+      const dy = clientY - (rect.top + center.y);
+      updateStick(dx, dy);
+    }
+
+    // マウスイベント
+    joystick.addEventListener('mousedown', e => {
+      handleMove(e.clientX, e.clientY);
+      const move = e => handleMove(e.clientX, e.clientY);
+      const up = () => {
+        document.removeEventListener('mousemove', move);
+        document.removeEventListener('mouseup', up);
+        resetStick();
+      };
+      document.addEventListener('mousemove', move);
+      document.addEventListener('mouseup', up);
+    });
+
+    // タッチイベント
+    joystick.addEventListener('touchstart', e => {
+      handleMove(e.touches[0].clientX, e.touches[0].clientY);
+    });
+
+    joystick.addEventListener('touchmove', e => {
+      e.preventDefault(); // スクロール抑制
+      handleMove(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: false });
+
+    joystick.addEventListener('touchend', resetStick);
+  </script>
+
+</body>
+</html>

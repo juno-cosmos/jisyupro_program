@@ -10,66 +10,26 @@ const IPAddress ip(192, 168, 123, 45);
 const IPAddress subnet(255, 255, 255, 0);
 
 const char html[] =
-R"rawliteral(
-<!DOCTYPE html><html lang='ja'><head><meta charset='UTF-8'>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WiFi Guardian Controller</title>
-<style>
-  body{margin:0;display:flex;justify-content:space-around;align-items:center;height:100vh;background:#222;}
-  .joystick{position:relative;width:200px;height:200px;background:#333;border-radius:50%;touch-action:none;}
-  .stick{position:absolute;width:80px;height:80px;background:#888;border-radius:50%;top:60px;left:60px;pointer-events:none;}
-</style>
-</head><body>
-
-<!-- 左スティック：首振り用 -->
-<div class="joystick" id="joy-left"><div class="stick" id="stick-left"></div></div>
-
-<!-- 右スティック：脚移動用 -->
-<div class="joystick" id="joy-right"><div class="stick" id="stick-right"></div></div>
-
-<script>
-const maxR=60;
-let activeL=false, activeR=false;
-function setup(idJoy,idStick, onMove){
-  const joy=document.getElementById(idJoy);
-  const stick=document.getElementById(idStick);
-  const rect=()=>joy.getBoundingClientRect();
-  const center={x:joy.offsetWidth/2,y:joy.offsetHeight/2};
-
-  joy.addEventListener("pointerdown",e=>{
-    if(e.pointerId) joy.setPointerCapture(e.pointerId);
-    activeL = idJoy==="joy-left";
-    activeR = idJoy==="joy-right";
-    move(e);
-  });
-  joy.addEventListener("pointermove",e=>{ if((activeL&&idJoy==="joy-left")||(activeR&&idJoy==="joy-right")) move(e); });
-  window.addEventListener("pointerup",e=>{ activeL=activeR=false; reset(); send(0,0,idJoy); });
-
-  function move(e){
-    const r=rect();
-    let dx=e.clientX-r.left-center.x, dy=e.clientY-r.top-center.y;
-    const dist=Math.hypot(dx,dy);
-    if(dist>maxR){ dx=dx/dist*maxR; dy=dy/dist*maxR; }
-    // 左スティックはXのみ、右は両軸
-    if(idJoy==="joy-left") dy=0;
-    stick.style.transform=`translate(${dx}px,${dy}px)`;
-    const nx=(dx/maxR).toFixed(2), ny=(dy/maxR).toFixed(2);
-    send(nx,ny,idJoy);
-  }
-  function reset(){
-    stick.style.transform="translate(0,0)";
-  }
-  function send(x,y,joy){
-    // GET でパラメータ送信
-    fetch(`/?joy=${joy}&x=${x}&y=${y}`).catch(()=>{});
-  }
-}
-
-setup("joy-left","stick-left");
-setup("joy-right","stick-right");
-</script>
-</body></html>
-)rawliteral";
+    "<!DOCTYPE html><html lang='ja'><head><meta charset='UTF-8'>\
+<style>input {margin:8px;width:80px;}\
+div {font-size:16pt;color:red;text-align:center;width:400px;border:groove 40px orange;}</style>\
+<title>WiFi Guardian Controller</title></head>\
+<body><div><p>Guardian Controller</p>\
+<form method='get'>\
+<input type='submit' name='le' value='左前' />\
+<input type='submit' name='fo' value='前' />\
+<input type='submit' name='ri' value='右前' /><br>\
+<input type='submit' name='st' value='停止' /><br>\
+<input type='submit' name='bl' value='左後' />\
+<input type='submit' name='ba' value='後ろ' />\
+<input type='submit' name='br' value='右後' /><br><br>\
+<input type='submit' name='rr' value='右旋回' />\
+<input type='submit' name='rl' value='左旋回' /><br><br>\
+<input type='submit' name='rh' value='頭右回転' />\
+<input type='submit' name='lh' value='頭左回転' /><br><br>\
+<input type='submit' name='w2' value='歩行mode2(前進のみ)' /><br><br>\
+<input type='submit' name='ws' value='歩行ゆっくり(前進のみ)' /><br><br>\
+</form></div></body></html>";
 
 WiFiServer server(80);
 
@@ -153,51 +113,113 @@ void setup() {
 
 void loop() {
   WiFiClient client = server.available();
-  if (!client) return;
 
-  // ---- ヘッダ読み飛ばし ----
-  String req = client.readStringUntil('\r');
-  client.flush();
+  if (client) {
+    String currentLine = "";
+    Serial.println("New Client.");
 
-  // ---- パラメータ解析 ----
-  // 例: "/?joy=joy-left&x=0.50&y=0.00"
-  if (req.startsWith("GET /?")) {
-    // joy パラメータ取得
-    int iJoy = req.indexOf("joy=");
-    int iX   = req.indexOf("&x=", iJoy);
-    int iY   = req.indexOf("&y=", iX);
-    if (iJoy >= 0 && iX > iJoy && iY > iX) {
-      String joy = req.substring(iJoy+4, iX);
-      float x = req.substring(iX+3, iY).toFloat();
-      float y = req.substring(iY+3, req.indexOf(' ', iY)).toFloat();
+    while (client.connected()) {
+      if (client.available()) {
+        char c = client.read();
+        Serial.write(c);
+        if (c == '\n') {
+          if (currentLine.length() == 0) {
+            client.println("HTTP/1.1 200 OK");
+            client.println("Content-type:text/html");
+            client.println();
 
-      if (joy == "joy-left") {
-        // X値で頭振り（90°±45°の範囲などにマッピング）
-        int angle = map(x*100, -100, 100, 45, 135);
-        head_yaw.write(angle);
-      }
-      else if (joy == "joy-right") {
-        // 8方向判定 → 該当する脚動作を呼び出し
-        if (abs(x)<0.3 && y>0.5)        walk1Control(0); // 前
-        else if (x>0.5 && y>0.5)        walk1Control(1); // 右前
-        else if (x>0.5 && abs(y)<0.3)   walk1Control(2); // 右
-        else if (x>0.5 && y<-0.5)       walk1Control(3); // 右後
-        else if (abs(x)<0.3 && y<-0.5)  walk1Control(4); // 後
-        else if (x<-0.5 && y<-0.5)      walk1Control(5); // 左後
-        else if (x<-0.5 && abs(y)<0.3)  walk1Control(6); // 左
-        else if (x<-0.5 && y>0.5)       walk1Control(7); // 左前
-        else                             stop();
+            client.print(html);
+            client.println();
+            break;
+          } else {
+            currentLine = "";
+          }
+        } else if (c != '\r') {
+          currentLine += c;
+        }
+
+        if (currentLine.endsWith("GET /?fo")) {
+          walk1Control(0);
+        }
+        if (currentLine.endsWith("GET /?le")) {
+          walk1Control(5);
+        }
+        if (currentLine.endsWith("GET /?ri")) {
+          walk1Control(1);
+        }
+        if (currentLine.endsWith("GET /?ba")) {
+          walk1Control(3);
+        }
+        if (currentLine.endsWith("GET /?bl")) {
+          walk1Control(4);
+        }
+        if (currentLine.endsWith("GET /?br")) {
+          walk1Control(2);
+        }
+        if (currentLine.endsWith("GET /?rl")) {
+          rotateControl(0);
+        }
+        if (currentLine.endsWith("GET /?rr")) {
+          rotateControl(1);
+        }
+        if (currentLine.endsWith("GET /?ws")) {
+          stop();
+          for (int i = 0; i < 3; i++) {
+            // 雑歩行3
+            linearControl(-4000, -4000, -4000, -4000, -4000, -4000, 1500, 3000,
+                          1500, 3000, 1500, 3000, -400, 400, -400, -400, 400,
+                          -400, 40, 60);
+            delay(1000); // 1秒待つ
+            linearControl(-4000, -4000, -4000, -4000, -4000, -4000, 1500, 3000,
+                          1500, 3000, 1500, 3000, 400, -400, 400, 400, -400,
+                          400, 40, 60);
+            delay(1000); // 1秒待つ
+            linearControl(-4000, -4000, -4000, -4000, -4000, -4000, 3000, 1500,
+                          3000, 1500, 3000, 1500, 400, -400, 400, 400, -400,
+                          400, 40, 60);
+            delay(1000); // 1秒待つ
+            linearControl(-4000, -4000, -4000, -4000, -4000, -4000, 3000, 1500,
+                          3000, 1500, 3000, 1500, -400, 400, -400, -400, 400,
+                          -400, 40, 60);
+            delay(1000); // 1秒待つ
+          }
+        }
+        if (currentLine.endsWith("GET /?lh")) {
+          head_yaw.write(45);
+        }
+        if (currentLine.endsWith("GET /?rh")) {
+          head_yaw.write(135);
+        }
+        if (currentLine.endsWith("GET /?w2")) {
+          stop();
+          for (int i = 0; i < 3; i++) {
+            // 雑歩行3
+            linearControl(-4000, -4000, -4000, -4000, -4000, -4000, 1500, 3000,
+                          1500, 3000, 1500, 3000, -400, 400, -400, -400, 400,
+                          -400, 20, 30);
+            delay(200); // 1秒待つ
+            linearControl(-4000, -4000, -4000, -4000, -4000, -4000, 1500, 3000,
+                          1500, 3000, 1500, 3000, 400, -400, 400, 400, -400,
+                          400, 20, 30);
+            delay(200); // 1秒待つ
+            linearControl(-4000, -4000, -4000, -4000, -4000, -4000, 3000, 1500,
+                          3000, 1500, 3000, 1500, 400, -400, 400, 400, -400,
+                          400, 20, 30);
+            delay(200); // 1秒待つ
+            linearControl(-4000, -4000, -4000, -4000, -4000, -4000, 3000, 1500,
+                          3000, 1500, 3000, 1500, -400, 400, -400, -400, 400,
+                          -400, 20, 30);
+            delay(200); // 1秒待つ
+          }
+        }
+        if (currentLine.endsWith("GET /?st")) {
+          stop();
+        }
       }
     }
+    client.stop();
+    Serial.println("Client Disconnected.");
   }
-
-  // ---- HTML レスポンス返却 ----
-  client.println("HTTP/1.1 200 OK");
-  client.println("Content-type:text/html");
-  client.println();
-  client.print(html);
-  client.stop();
-  Serial.println("Client Disconnected.");
 }
 
 void stop() {

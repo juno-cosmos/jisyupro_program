@@ -97,6 +97,15 @@ body {
 
                 const resetStick = () => {
                     stick.style.transform = `translate(0px, 0px)`;
+
+                    const normX = 0.00;
+                    const normY = 0.00;
+
+                    console.log(`${containerId} => X: ${normX}, Y: ${normY}`); // debug
+                    joystickValues[containerId === "joystick-left" ? "left" : "right"] = {
+                        x: normX,
+                        y: normY
+                    };
                 };
 
                 const getEventPos = (e) => {

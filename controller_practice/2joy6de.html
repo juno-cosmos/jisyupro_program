@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Guardian Mayfes Controller</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #222;
+      color: #ddd;
+      font-family: sans-serif;
+    }
+    .container {
+      display: flex;
+      gap: 40px;
+    }
+    .joystick-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .joystick-area {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      background: #333;
+      border-radius: 50%;
+      touch-action: none;
+      user-select: none;
+    }
+    .stick {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background: #888;
+      border-radius: 50%;
+      top: 70px;
+      left: 70px;
+      pointer-events: none;
+      transition: 0.05s;
+    }
+    .label {
+      margin-top: 12px;
+      font-size: 1.1em;
+      color: #0f0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 左側：Xdirのみ -->
+    <div class="joystick-wrapper">
+      <div id="joyL" class="joystick-area">
+        <div id="stickL" class="stick"></div>
+      </div>
+      <div id="outL" class="label">X: 0</div>
+    </div>
+    <!-- 右側：6dir -->
+    <div class="joystick-wrapper">
+      <div id="joyR" class="joystick-area">
+        <div id="stickR" class="stick"></div>
+      </div>
+      <div id="outR" class="label">dir: none</div>
+    </div>
+  </div>
+
+  <script>
+    // 共通設定
+    const SIZE = 200, R = 60, THRESH = 10;
+    const centers = { x: SIZE/2, y: SIZE/2 };
+
+    // 要素取得
+    const joyL = document.getElementById('joyL');
+    const joyR = document.getElementById('joyR');
+    const stickL = document.getElementById('stickL');
+    const stickR = document.getElementById('stickR');
+    const outL = document.getElementById('outL');
+    const outR = document.getElementById('outR');
+
+    // ポインターID → which joystick
+    const active = {};
+
+    // 現在の値を保持する変数
+    let currentL = 0;
+    let currentR = 'none';
+
+    // 角度→6dir取得
+    function getDir6(angle) {
+      const dirs = ['front','front-right','back-right','back','back-left','front-left'];
+      let deg = angle * 180/Math.PI + 90; // -90度回転
+      deg = deg%360;
+      return dirs[Math.round(deg/60)%6];
+    }
+
+    // 左スティック更新（Xのみ）
+    function updateL(dx) {
+        const d = Math.max(-R, Math.min(R, dx));
+        stickL.style.left = `${centers.x - 30 + d}px`;
+
+        const ratio = Math.abs(d / R);  // 移動量の割合（0〜1）
+
+        let x = 0;
+        if (ratio > 0.3) {
+            x = d > 0 ? 1: -1;
+        }
+        outL.textContent = `X: ${x}`;
+        currentL = x;
+    }
+    // 左リセット
+    function resetL() {
+        stickL.style.left = '70px';
+        outL.textContent = 'X: 0';
+        currentL = 0;
+    }
+
+    // 右スティック更新（6dir）
+    function updateR(dx, dy) {
+        const dist = Math.min(Math.hypot(dx, dy), R);
+        const ang = Math.atan2(dy, dx);
+
+        const ratio = dist / R;  // 移動割合（0〜1）
+
+        const x = dist * Math.cos(ang);
+        const y = dist * Math.sin(ang);
+        stickR.style.left = `${centers.x - 30 + x}px`;
+        stickR.style.top = `${centers.y - 30 + y}px`;
+
+        if (ratio > 0.3) {
+            outR.textContent = 'dir: ' + getDir6(ang);
+            currentR = getDir6(ang);
+        } else {
+            outR.textContent = 'dir: none';
+            currentR = 'none';
+        }
+    }
+    // 右リセット
+    function resetR() {
+        stickR.style.left = '70px';
+        stickR.style.top  = '70px';
+        outR.textContent = 'dir: none';
+        currentR = 'none';
+    }
+
+    // ポインタダウン共通
+    function onPointerDown(e, side) {
+        e.target.setPointerCapture(e.pointerId);
+        active[e.pointerId] = side;
+        // handleMove(e);
+        onPointerMove(e);
+    }
+
+    // ポインタアップ
+    function onPointerUp(e) {
+      const side = active[e.pointerId];
+      delete active[e.pointerId];
+      if (side==='L') resetL();
+      if (side==='R') resetR();
+      e.target.releasePointerCapture(e.pointerId);
+    }
+
+    // ポインタ移動
+    function onPointerMove(e) {
+      const side = active[e.pointerId];
+      if (!side) return;
+      const area = side==='L'? joyL: joyR;
+      const rect = area.getBoundingClientRect();
+      const dx = e.clientX - (rect.left + centers.x);
+      const dy = e.clientY - (rect.top  + centers.y);
+      if (side==='L') updateL(dx);
+      else          updateR(dx, dy);
+    }
+
+    // イベント登録
+    joyL.addEventListener('pointerdown', e => onPointerDown(e,'L'));
+    joyR.addEventListener('pointerdown', e => onPointerDown(e,'R'));
+    document.addEventListener('pointermove', onPointerMove);
+    joyL.addEventListener('pointerup',   onPointerUp);
+    joyR.addEventListener('pointerup',   onPointerUp);
+    joyL.addEventListener('pointercancel', onPointerUp);
+    joyR.addEventListener('pointercancel', onPointerUp);
+
+    // 500msごとに現在の値をconsole.logで表示
+    setInterval(() => {
+        fetch(`/?left_dir=${currentL}&right_dir=${currentR}`).catch(()=>{});
+        // console.log(`joy-left: ${currentL}, joy-right: ${currentR}`);
+    }, 100);
+  </script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html><html lang='ja'><head><meta charset='UTF-8'>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WiFi Guardian Controller</title>
+<style>
+  body{margin:0;display:flex;justify-content:space-around;align-items:center;height:100vh;background:#222;}
+  .joystick{position:relative;width:200px;height:200px;background:#333;border-radius:50%;touch-action:none;}
+  .stick{position:absolute;width:80px;height:80px;background:#888;border-radius:50%;top:60px;left:60px;pointer-events:none;}
+</style>
+</head><body>
+
+<!-- 左スティック：首振り用 -->
+<div class="joystick" id="joy-left"><div class="stick" id="stick-left"></div></div>
+
+<!-- 右スティック：脚移動用 -->
+<div class="joystick" id="joy-right"><div class="stick" id="stick-right"></div></div>
+
+<script>
+const maxR=60;
+let activeL=false, activeR=false;
+let leftXY={x:0, y:0}, rightXY={x:0, y:0};
+
+function setup(idJoy,idStick){
+  const joy=document.getElementById(idJoy);
+  const stick=document.getElementById(idStick);
+  const rect=()=>joy.getBoundingClientRect();
+  const center={x:joy.offsetWidth/2,y:joy.offsetHeight/2};
+
+  joy.addEventListener("pointerdown",e=>{
+  if(e.pointerId) joy.setPointerCapture(e.pointerId);
+  if(idJoy==="joy-left") activeL=true;
+  if(idJoy==="joy-right") activeR=true;
+  move(e);
+  });
+  joy.addEventListener("pointermove",e=>{
+  if((activeL&&idJoy==="joy-left")||(activeR&&idJoy==="joy-right")) move(e);
+  });
+  window.addEventListener("pointerup",e=>{
+  if(idJoy==="joy-left") activeL=false;
+  if(idJoy==="joy-right") activeR=false;
+  reset();
+  if(idJoy==="joy-left") leftXY={x:0, y:0};
+  if(idJoy==="joy-right") rightXY={x:0, y:0};
+  });
+
+  function move(e){
+  const r=rect();
+  let dx=e.clientX-r.left-center.x, dy=e.clientY-r.top-center.y;
+  const dist=Math.hypot(dx,dy);
+  if(dist>maxR){ dx=dx/dist*maxR; dy=dy/dist*maxR; }
+  // 左スティックはXのみ、右は両軸
+  if(idJoy==="joy-left") dy=0;
+  stick.style.transform=`translate(${dx}px,${dy}px)`;
+  const nx=(dx/maxR).toFixed(2), ny=(dy/maxR).toFixed(2);
+  if(idJoy==="joy-left") leftXY={x:nx, y:ny};
+  if(idJoy==="joy-right") rightXY={x:nx, y:ny};
+  }
+  function reset(){
+  stick.style.transform="translate(0,0)";
+  }
+}
+
+setup("joy-left","stick-left");
+setup("joy-right","stick-right");
+
+// 500msごとに現在の値を送信
+setInterval(()=>{
+  console.log(`joy-left: x=${leftXY.x}, y=${leftXY.y}`);
+  console.log(`joy-right: x=${rightXY.x}, y=${rightXY.y}`);
+},1000);
+</script>
+</body></html>/html>
