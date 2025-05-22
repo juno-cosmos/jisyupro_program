@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>Guardian Controller</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .top-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 80%;
+      margin-bottom: 30px;
+    }
+
+    .head, .locomotion {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .dpad {
+      display: grid;
+      grid-template-areas:
+        ". up ."
+        "left center right"
+        ". down .";
+      gap: 5px;
+    }
+
+    .dpad button {
+      width: 40px;
+      height: 40px;
+      background: #ddd;
+      border: 1px solid #999;
+      border-radius: 5px;
+    }
+
+    .dpad button.center {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .guardian {
+      font-size: 60px;
+      border: 2px solid black;
+      padding: 20px 60px;
+      border-radius: 20px;
+      text-align: center;
+    }
+
+    .locomotion-circle {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      grid-template-rows: repeat(3, 60px);
+      gap: 5px;
+    }
+
+    .locomotion-circle button {
+      background: #ddd;
+      border: 1px solid #999;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+    }
+
+    .debug-section {
+      width: 80%;
+      margin-top: 30px;
+    }
+
+    .debug-title {
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .debug-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .debug-buttons button {
+      width: 50px;
+      height: 50px;
+      background: #eee;
+      border: 2px solid #aaa;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-section">
+    <div class="head">
+      <div>Head</div>
+      <div class="dpad">
+        <button style="grid-area: up;">↑</button>
+        <button style="grid-area: left;">←</button>
+        <button class="center" style="grid-area: center;"></button>
+        <button style="grid-area: right;">→</button>
+        <button style="grid-area: down;">↓</button>
+      </div>
+    </div>
+
+    <div class="guardian">
+      Guardian
+    </div>
+
+    <div class="locomotion">
+      <div>Locomotion</div>
+      <div class="locomotion-circle">
+        <button></button><button></button><button></button>
+        <button></button><button></button><button></button>
+        <button></button><button></button><button></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="debug-section">
+    <div class="debug-title">Debug</div>
+    <div class="debug-buttons">
+      <button></button>
+      <button></button>
+      <button></button>
+      <button></button>
+      <button></button>
+      <button></button>
+    </div>
+  </div>
+
+</body>
+</html>
+

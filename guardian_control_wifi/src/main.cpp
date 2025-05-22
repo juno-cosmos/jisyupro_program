@@ -29,6 +29,12 @@ div {font-size:16pt;color:red;text-align:center;width:400px;border:groove 40px o
 <input type='submit' name='lh' value='頭左回転' /><br><br>\
 <input type='submit' name='w2' value='歩行mode2(前進のみ)' /><br><br>\
 <input type='submit' name='ws' value='歩行ゆっくり(前進のみ)' /><br><br>\
+<input type='submit' name='l0' value='leg0' />\
+<input type='submit' name='l1' value='leg1' />\
+<input type='submit' name='l2' value='leg2' /><br>\
+<input type='submit' name='l3' value='leg3' />\
+<input type='submit' name='l4' value='leg4' />\
+<input type='submit' name='l5' value='leg5' /><br><br>\
 </form></div></body></html>";
 
 WiFiServer server(80);
@@ -38,7 +44,7 @@ const byte EN_PIN1 = 4;
 const byte EN_PIN2 = 18;
 const long BAUDRATE = 1250000;
 const int TIMEOUT = 1000;
-const int D_TIME = 20;
+const int D_TIME = 10;
 const int HOKAN = 30;
 const int DELAY_TIME = 200;
 int pos[3][6];
@@ -59,7 +65,9 @@ void linearControl(int dpos0, int dpos1, int dpos2, int dpos3, int dpos4,
                    int dpos10, int dpos11, int dpos12, int dpos13, int dpos14,
                    int dpos15, int dpos16, int dpos17, int d_time, int hokan);
 void walk1Control(int id);
+void walk2Control(int id);
 void rotateControl(int id);
+void checkLeg(int id);
 
 Servo head_yaw;
 #define HEAD_YAW_PIN 33
@@ -139,22 +147,22 @@ void loop() {
         }
 
         if (currentLine.endsWith("GET /?fo")) {
-          walk1Control(0);
+          walk2Control(0);
         }
         if (currentLine.endsWith("GET /?le")) {
-          walk1Control(5);
+          walk2Control(5);
         }
         if (currentLine.endsWith("GET /?ri")) {
-          walk1Control(1);
+          walk2Control(1);
         }
         if (currentLine.endsWith("GET /?ba")) {
-          walk1Control(3);
+          walk2Control(3);
         }
         if (currentLine.endsWith("GET /?bl")) {
-          walk1Control(4);
+          walk2Control(4);
         }
         if (currentLine.endsWith("GET /?br")) {
-          walk1Control(2);
+          walk2Control(2);
         }
         if (currentLine.endsWith("GET /?rl")) {
           rotateControl(0);
@@ -211,6 +219,24 @@ void loop() {
                           -400, 20, 30);
             delay(200); // 1秒待つ
           }
+        }
+        if (currentLine.endsWith("GET /?l0")) {
+          checkLeg(0);
+        }
+        if (currentLine.endsWith("GET /?l1")) {
+          checkLeg(1);
+        }
+        if (currentLine.endsWith("GET /?l2")) {
+          checkLeg(2);
+        }
+        if (currentLine.endsWith("GET /?l3")) {
+          checkLeg(3);
+        }
+        if (currentLine.endsWith("GET /?l4")) {
+          checkLeg(4);
+        }
+        if (currentLine.endsWith("GET /?l5")) {
+          checkLeg(5);
         }
         if (currentLine.endsWith("GET /?st")) {
           stop();
@@ -340,7 +366,6 @@ void linearControl(int dpos0, int dpos1, int dpos2, int dpos3, int dpos4,
 
 void walk1Control(int id) {
   stop();
-
   // 歩容行列
   int s1_w[6] = {0, -3500, 0, -3500, 0, -3500};
   int s1_p[6] = {0, 3000, 0, 3000, 0, 3000};
@@ -356,13 +381,13 @@ void walk1Control(int id) {
   int s4_y[6] = {-400, 400, -400, -400, 400, -400};
   int s1_up_p[6] = {0, 3000, 0, 3000, 0, 3000};
   int s3_up_p[6] = {3000, 0, 3000, 0, 3000, 0};
-
-  int n0 = (0 - id) % 6;
-  int n1 = (1 - id) % 6;
-  int n2 = (2 - id) % 6;
-  int n3 = (3 - id) % 6;
-  int n4 = (4 - id) % 6;
-  int n5 = (5 - id) % 6;
+  
+  int n0 = ((0 - id) % 6 + 6) % 6;
+  int n1 = ((1 - id) % 6 + 6) % 6;
+  int n2 = ((2 - id) % 6 + 6) % 6;
+  int n3 = ((3 - id) % 6 + 6) % 6;
+  int n4 = ((4 - id) % 6 + 6) % 6;
+  int n5 = ((5 - id) % 6 + 6) % 6;
 
   for (int i = 0; i < 3; ++i) { // 5回繰り返す
     linearControl(0, 0, 0, 0, 0, 0, s1_up_p[n0], s1_up_p[n1], s1_up_p[n2],
@@ -381,6 +406,54 @@ void walk1Control(int id) {
     linearControl(0, 0, 0, 0, 0, 0, s3_up_p[n0], s3_up_p[n1], s3_up_p[n2],
                   s3_up_p[n3], s3_up_p[n4], s3_up_p[n5], s2_y[n0], s2_y[n1],
                   s2_y[n2], s2_y[n3], s2_y[n4], s2_y[n5], D_TIME, HOKAN);
+    linearControl(s3_w[n0], s3_w[n1], s3_w[n2], s3_w[n3], s3_w[n4], s3_w[n5],
+                  s3_p[n0], s3_p[n1], s3_p[n2], s3_p[n3], s3_p[n4], s3_p[n5],
+                  s3_y[n0], s3_y[n1], s3_y[n2], s3_y[n3], s3_y[n4], s3_y[n5],
+                  D_TIME, HOKAN);
+    delay(DELAY_TIME); // 0.2秒待つ
+    linearControl(s4_w[n0], s4_w[n1], s4_w[n2], s4_w[n3], s4_w[n4], s4_w[n5],
+                  s4_p[n0], s4_p[n1], s4_p[n2], s4_p[n3], s4_p[n4], s4_p[n5],
+                  s4_y[n0], s4_y[n1], s4_y[n2], s4_y[n3], s4_y[n4], s4_y[n5],
+                  D_TIME, HOKAN);
+    delay(DELAY_TIME); // 0.2秒待つ
+  }
+}
+
+void walk2Control(int id) {
+  stop();
+
+  // 歩容行列
+  int s1_w[6] = {-4000, -4000, -4000, -4000, -4000, -4000};
+  int s1_p[6] = {1500, 3000, 1500, 3000, 1500, 3000};
+  int s1_y[6] = {-400, 400, -400, -400, 400, -400};
+  int s2_w[6] = {-4000, -4000, -4000, -4000, -4000, -4000};
+  int s2_p[6] = {1500, 3000, 1500, 3000, 1500, 3000};
+  int s2_y[6] = {400, -400, 400, 400, -400, 400};
+  int s3_w[6] = {-4000, -4000, -4000, -4000, -4000, -4000};
+  int s3_p[6] = {3000, 1500, 3000, 1500, 3000, 1500};
+  int s3_y[6] = {400, -400, 400, 400, -400, 400};
+  int s4_w[6] = {-4000, -4000, -4000, -4000, -4000, -4000};
+  int s4_p[6] = {3000, 1500, 3000, 1500, 3000, 1500};
+  int s4_y[6] = {-400, 400, -400, -400, 400, -400};
+
+  int n0 = ((0 - id) % 6 + 6) % 6;
+  int n1 = ((1 - id) % 6 + 6) % 6;
+  int n2 = ((2 - id) % 6 + 6) % 6;
+  int n3 = ((3 - id) % 6 + 6) % 6;
+  int n4 = ((4 - id) % 6 + 6) % 6;
+  int n5 = ((5 - id) % 6 + 6) % 6;
+
+  for (int i = 0; i < 3; ++i) { // 3回繰り返す
+    linearControl(s1_w[n0], s1_w[n1], s1_w[n2], s1_w[n3], s1_w[n4], s1_w[n5],
+                  s1_p[n0], s1_p[n1], s1_p[n2], s1_p[n3], s1_p[n4], s1_p[n5],
+                  s1_y[n0], s1_y[n1], s1_y[n2], s1_y[n3], s1_y[n4], s1_y[n5],
+                  D_TIME, HOKAN);
+    delay(DELAY_TIME); // 0.2秒待つ
+    linearControl(s2_w[n0], s2_w[n1], s2_w[n2], s2_w[n3], s2_w[n4], s2_w[n5],
+                  s2_p[n0], s2_p[n1], s2_p[n2], s2_p[n3], s2_p[n4], s2_p[n5],
+                  s2_y[n0], s2_y[n1], s2_y[n2], s2_y[n3], s2_y[n4], s2_y[n5],
+                  D_TIME, HOKAN);
+    delay(DELAY_TIME); // 0.2秒待つ
     linearControl(s3_w[n0], s3_w[n1], s3_w[n2], s3_w[n3], s3_w[n4], s3_w[n5],
                   s3_p[n0], s3_p[n1], s3_p[n2], s3_p[n3], s3_p[n4], s3_p[n5],
                   s3_y[n0], s3_y[n1], s3_y[n2], s3_y[n3], s3_y[n4], s3_y[n5],
@@ -447,4 +520,23 @@ void rotateControl(int id) {
                   HOKAN);
     delay(DELAY_TIME); // 0.2秒待つ
   }
+}
+
+void checkLeg(int id) {
+  setLegPosLinear(id, 0, 0, -400, 20, 30);
+  delay(200);
+  setLegPosLinear(id, 0, 0, 400, 20, 30);
+  delay(200);
+  setLegPosLinear(id, -3500, 3000, 400, 20, 30);
+  delay(200);
+  setLegPosLinear(id, -3500, 3000, -400, 20, 30);
+  delay(200);
+  setLegPosLinear(id, -4000, 1500, -400, 20, 30);
+  delay(200);
+  setLegPosLinear(id, -4000, 1500, 400, 20, 30);
+  delay(200);
+  setLegPosLinear(id, -4000, 3000, 400, 20, 30);
+  delay(200);
+  setLegPosLinear(id, -4000, 3000, -400, 20, 30);
+  delay(200);
 }

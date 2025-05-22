@@ -464,12 +464,12 @@ void walk1Control() {
   int s3_up_p[6] = {3000, 0, 3000, 0, 3000, 0};
 
   // 1indexになったので変更
-  int n0 = (1 - control_state) % 6;
-  int n1 = (2 - control_state) % 6;
-  int n2 = (3 - control_state) % 6;
-  int n3 = (4 - control_state) % 6;
-  int n4 = (5 - control_state) % 6;
-  int n5 = (6 - control_state) % 6;
+  int n0 = ((1 - id) % 6 + 6) % 6;
+  int n1 = ((2 - id) % 6 + 6) % 6;
+  int n2 = ((3 - id) % 6 + 6) % 6;
+  int n3 = ((4 - id) % 6 + 6) % 6;
+  int n4 = ((5 - id) % 6 + 6) % 6;
+  int n5 = ((6 - id) % 6 + 6) % 6;
 
   switch (walk_state) {
   case 1:

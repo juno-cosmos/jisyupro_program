@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Guardian Controller (SVG 実装)</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+    }
+    svg {
+      overflow: visible;
+    }
+    .button-fill {
+      fill: #ddd;
+      stroke: #000;
+      stroke-width: 4;
+      stroke-linejoin: round;
+    }
+    .label {
+      font-size: 32px;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      fill: #000;
+    }
+    .frame {
+      fill: none;
+      stroke: #000;
+      stroke-width: 6;
+      stroke-linejoin: round;
+    }
+  </style>
+</head>
+<body>
+
+<svg width="800" height="400" viewBox="0 0 800 400">
+
+  <!-- Head (D-pad) -->
+  <g id="head" transform="translate(150,200)">
+    <text class="label" x="0" y="-80">Head</text>
+    <!-- 上 -->
+    <polygon class="button-fill" points="-25,-60 25,-60 15,-20 -15,-20"/>
+    <!-- 右 -->
+    <polygon class="button-fill" points="20,-25 60,-25 60,25 20,25"/>
+    <!-- 下 -->
+    <polygon class="button-fill" points="-15,20 15,20 25,60 -25,60"/>
+    <!-- 左 -->
+    <polygon class="button-fill" points="-60,25 -20,25 -20,-15 -60,-15"/>
+  </g>
+
+  <!-- Guardian 中央ラベル枠 -->
+  <g id="guardian" transform="translate(400,200)">
+    <rect class="frame" x="-160" y="-60" width="320" height="120" rx="8" ry="8"/>
+    <text class="label" x="0" y="0">Guardian</text>
+  </g>
+
+  <!-- Locomotion -->
+  <g id="locomotion" transform="translate(650,200)">
+    <text class="label" x="0" y="-100">Locomotion</text>
+    <!-- 中心の円 -->
+    <circle class="button-fill" cx="0" cy="0" r="20"/>
+    <!-- 上 -->
+    <polygon class="button-fill" points="-30,-60 30,-60 20,-30 -20,-30"/>
+    <!-- 右上 -->
+    <polygon class="button-fill" points="30,-30 60,0 30,30 20,0"/>
+    <!-- 右下 -->
+    <polygon class="button-fill" points="20,30 60,30 60,70 20,40"/>
+    <!-- 下 -->
+    <polygon class="button-fill" points="-30,60 30,60 20,30 -20,30"/>
+    <!-- 左下 -->
+    <polygon class="button-fill" points="-60,30 -30,30 -20,0 -50,0"/>
+    <!-- 左上 -->
+    <polygon class="button-fill" points="-50,0 -20,-30 -60,0"/>
+  </g>
+
+</svg>
+
+</body>
+</html>
+

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>WiFi Guardian Controller</title>
+  <style>
+    body {
+      background-color: #f3f4f6;
+      font-family: 'Noto Sans JP', sans-serif;
+      color: #1f2937;
+      display: flex;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    div {
+      font-size: 16pt;
+      text-align: center;
+      padding: 40px;
+      background: #ffffff;
+      border: solid 4px #f59e0b;
+      border-radius: 20px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    p {
+      font-size: 24pt;
+      color: #1e40af;
+      margin-bottom: 30px;
+    }
+
+    input[type="submit"] {
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      margin: 6px;
+      border-radius: 8px;
+      font-size: 14pt;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      width: 120px;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #2563eb;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      justify-items: center;
+    }
+
+    form br {
+      display: none; /* <br>はgridに置き換えたので非表示 */
+    }
+
+    /* 特定行を分けるためのグループ用 */
+    .full-width {
+      grid-column: span 3;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <p>Guardian Controller</p>
+    <form method="get">
+      <input type="submit" name="le" value="左前" />
+      <input type="submit" name="fo" value="前" />
+      <input type="submit" name="ri" value="右前" />
+
+      <input type="submit" name="st" value="停止" class="full-width" />
+
+      <input type="submit" name="bl" value="左後" />
+      <input type="submit" name="ba" value="後ろ" />
+      <input type="submit" name="br" value="右後" />
+
+      <input type="submit" name="rr" value="右旋回" />
+      <input type="submit" name="rl" value="左旋回" />
+
+      <input type="submit" name="rh" value="頭右回転" />
+      <input type="submit" name="lh" value="頭左回転" />
+
+      <input type="submit" name="w2" value="歩行mode2(前進のみ)" class="full-width" />
+      <input type="submit" name="ws" value="歩行ゆっくり(前進のみ)" class="full-width" />
+
+      <input type="submit" name="l0" value="leg0" />
+      <input type="submit" name="l1" value="leg1" />
+      <input type="submit" name="l2" value="leg2" />
+      <input type="submit" name="l3" value="leg3" />
+      <input type="submit" name="l4" value="leg4" />
+      <input type="submit" name="l5" value="leg5" />
+    </form>
+  </div>
+</body>
+</html>
+

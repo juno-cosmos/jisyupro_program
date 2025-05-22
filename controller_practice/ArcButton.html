@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>円弧ボタン</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #f0f0f0;
+    }
+
+    .arc-button {
+      width: 200px;
+      height: 200px;
+      background: #ffcc66;
+      color: #5a3e00;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      clip-path: polygon(
+        50% 0%, 100% 0%, 100% 50%,
+        85% 85%, 50% 100%, 15% 85%,
+        0% 50%, 0% 0%
+      );
+      transition: transform 0.2s;
+    }
+
+    .arc-button:hover {
+      transform: scale(1.05);
+    }
+
+    .arc-button span {
+      position: relative;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="arc-button">
+    <span>アーク</span>
+  </div>
+
+</body>
+</html>
