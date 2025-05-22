@@ -1,8 +1,8 @@
 
 <!DOCTYPE html>
-<html lang="ja">
+<html lang='ja'>
 <head>
-  <meta charset="UTF-8" />
+  <meta charset='UTF-8' />
   <title>Guardian Controller</title>
   <style>
     body {
@@ -31,9 +31,9 @@
     .dpad {
       display: grid;
       grid-template-areas:
-        ". up ."
-        "left center right"
-        ". down .";
+        '. up .'
+        'left center right'
+        '. down .';
       gap: 5px;
     }
 
@@ -99,47 +99,47 @@
 </head>
 <body>
 
-  <div class="top-section">
-    <div class="head">
+  <div class='top-section'>
+    <div class='head'>
       <div>Head</div>
-      <div class="dpad">
-        <form style="grid-area: up;" method="get"><input type="submit" name="w2" value="歩行mode2" /></form>
-        <form style="grid-area: left;" method="get"><input type="submit" name="lh" value="頭左回転" /></form>
-        <div class="center" style="grid-area: center;"></div>
-        <form style="grid-area: right;" method="get"><input type="submit" name="rh" value="頭右回転" /></form>
-        <form style="grid-area: down;" method="get"><input type="submit" name="ws" value="歩行ゆっくり" /></form>
+      <div class='dpad'>
+        <form style='grid-area: up;' method='get'><input type='submit' name='w2' value='歩行mode2' /></form>
+        <form style='grid-area: left;' method='get'><input type='submit' name='lh' value='頭左回転' /></form>
+        <div class='center' style='grid-area: center;'></div>
+        <form style='grid-area: right;' method='get'><input type='submit' name='rh' value='頭右回転' /></form>
+        <form style='grid-area: down;' method='get'><input type='submit' name='ws' value='歩行ゆっくり' /></form>
       </div>
     </div>
 
-    <div class="guardian">
+    <div class='guardian'>
       Guardian
     </div>
 
-    <div class="locomotion">
+    <div class='locomotion'>
       <div>Locomotion</div>
-      <div class="locomotion-circle">
-        <form method="get"><input type="submit" name="fl" value="↖" /></form>
-        <form method="get"><input type="submit" name="fo" value="↑" /></form>
-        <form method="get"><input type="submit" name="fr" value="↗" /></form>
-        <form method="get"><input type="submit" name="rl" value="←" /></form>
-        <form method="get"><input type="submit" name="st" value="||" /></form>
-        <form method="get"><input type="submit" name="rr" value="→" /></form>
-        <form method="get"><input type="submit" name="bl" value="↙" /></form>
-        <form method="get"><input type="submit" name="ba" value="↓" /></form>
-        <form method="get"><input type="submit" name="br" value="↘" /></form>
+      <div class='locomotion-circle'>
+        <form method='get'><input type='submit' name='le' value='↖' /></form>
+        <form method='get'><input type='submit' name='fo' value='↑' /></form>
+        <form method='get'><input type='submit' name='ri' value='↗' /></form>
+        <form method='get'><input type='submit' name='rl' value='←' /></form>
+        <form method='get'><input type='submit' name='st' value='||' /></form>
+        <form method='get'><input type='submit' name='rr' value='→' /></form>
+        <form method='get'><input type='submit' name='bl' value='↙' /></form>
+        <form method='get'><input type='submit' name='ba' value='↓' /></form>
+        <form method='get'><input type='submit' name='br' value='↘' /></form>
       </div>
     </div>
   </div>
 
-  <div class="debug-section">
-    <div class="debug-title">Debug</div>
-    <div class="debug-buttons">
-      <form method="get"><input type="submit" name="l0" value="leg0" /></form>
-      <form method="get"><input type="submit" name="l1" value="leg1" /></form>
-      <form method="get"><input type="submit" name="l2" value="leg2" /></form>
-      <form method="get"><input type="submit" name="l3" value="leg3" /></form>
-      <form method="get"><input type="submit" name="l4" value="leg4" /></form>
-      <form method="get"><input type="submit" name="l5" value="leg5" /></form>
+  <div class='debug-section'>
+    <div class='debug-title'>Debug</div>
+    <div class='debug-buttons'>
+      <form method='get'><input type='submit' name='l0' value='leg0' /></form>
+      <form method='get'><input type='submit' name='l1' value='leg1' /></form>
+      <form method='get'><input type='submit' name='l2' value='leg2' /></form>
+      <form method='get'><input type='submit' name='l3' value='leg3' /></form>
+      <form method='get'><input type='submit' name='l4' value='leg4' /></form>
+      <form method='get'><input type='submit' name='l5' value='leg5' /></form>
     </div>
   </div>
 

@@ -9,33 +9,154 @@ const char pass[] = "12345678";
 const IPAddress ip(192, 168, 123, 45);
 const IPAddress subnet(255, 255, 255, 0);
 
-const char html[] =
-    "<!DOCTYPE html><html lang='ja'><head><meta charset='UTF-8'>\
-<style>input {margin:8px;width:80px;}\
-div {font-size:16pt;color:red;text-align:center;width:400px;border:groove 40px orange;}</style>\
-<title>WiFi Guardian Controller</title></head>\
-<body><div><p>Guardian Controller</p>\
-<form method='get'>\
-<input type='submit' name='le' value='左前' />\
-<input type='submit' name='fo' value='前' />\
-<input type='submit' name='ri' value='右前' /><br>\
-<input type='submit' name='st' value='停止' /><br>\
-<input type='submit' name='bl' value='左後' />\
-<input type='submit' name='ba' value='後ろ' />\
-<input type='submit' name='br' value='右後' /><br><br>\
-<input type='submit' name='rr' value='右旋回' />\
-<input type='submit' name='rl' value='左旋回' /><br><br>\
-<input type='submit' name='rh' value='頭右回転' />\
-<input type='submit' name='lh' value='頭左回転' /><br><br>\
-<input type='submit' name='w2' value='歩行mode2(前進のみ)' /><br><br>\
-<input type='submit' name='ws' value='歩行ゆっくり(前進のみ)' /><br><br>\
-<input type='submit' name='l0' value='leg0' />\
-<input type='submit' name='l1' value='leg1' />\
-<input type='submit' name='l2' value='leg2' /><br>\
-<input type='submit' name='l3' value='leg3' />\
-<input type='submit' name='l4' value='leg4' />\
-<input type='submit' name='l5' value='leg5' /><br><br>\
-</form></div></body></html>";
+const char html[] = R"(
+<!DOCTYPE html>
+<html lang='ja'>
+<head>
+  <meta charset='UTF-8' />
+  <title>Guardian Controller</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .top-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 80%;
+      margin-bottom: 30px;
+    }
+
+    .head, .locomotion {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .dpad {
+      display: grid;
+      grid-template-areas:
+        '. up .'
+        'left center right'
+        '. down .';
+      gap: 5px;
+    }
+
+    .dpad form input {
+      width: 40px;
+      height: 40px;
+      background: #ddd;
+      border: 1px solid #999;
+      border-radius: 5px;
+    }
+
+    .dpad .center {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .guardian {
+      font-size: 60px;
+      border: 2px solid black;
+      padding: 20px 60px;
+      border-radius: 20px;
+      text-align: center;
+    }
+
+    .locomotion-circle {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      grid-template-rows: repeat(3, 60px);
+      gap: 5px;
+    }
+
+    .locomotion-circle form input {
+      background: #ddd;
+      border: 1px solid #999;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+    }
+
+    .debug-section {
+      width: 80%;
+      margin-top: 30px;
+    }
+
+    .debug-title {
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .debug-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .debug-buttons form input {
+      width: 50px;
+      height: 50px;
+      background: #eee;
+      border: 2px solid #aaa;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class='top-section'>
+    <div class='head'>
+      <div>Head</div>
+      <div class='dpad'>
+        <form style='grid-area: up;' method='get'><input type='submit' name='w2' value='歩行mode2' /></form>
+        <form style='grid-area: left;' method='get'><input type='submit' name='lh' value='頭左回転' /></form>
+        <div class='center' style='grid-area: center;'></div>
+        <form style='grid-area: right;' method='get'><input type='submit' name='rh' value='頭右回転' /></form>
+        <form style='grid-area: down;' method='get'><input type='submit' name='ws' value='歩行ゆっくり' /></form>
+      </div>
+    </div>
+
+    <div class='guardian'>
+      Guardian
+    </div>
+
+    <div class='locomotion'>
+      <div>Locomotion</div>
+      <div class='locomotion-circle'>
+        <form method='get'><input type='submit' name='le' value='↖' /></form>
+        <form method='get'><input type='submit' name='fo' value='↑' /></form>
+        <form method='get'><input type='submit' name='ri' value='↗' /></form>
+        <form method='get'><input type='submit' name='rl' value='←' /></form>
+        <form method='get'><input type='submit' name='st' value='||' /></form>
+        <form method='get'><input type='submit' name='rr' value='→' /></form>
+        <form method='get'><input type='submit' name='bl' value='↙' /></form>
+        <form method='get'><input type='submit' name='ba' value='↓' /></form>
+        <form method='get'><input type='submit' name='br' value='↘' /></form>
+      </div>
+    </div>
+  </div>
+
+  <div class='debug-section'>
+    <div class='debug-title'>Debug</div>
+    <div class='debug-buttons'>
+      <form method='get'><input type='submit' name='l0' value='leg0' /></form>
+      <form method='get'><input type='submit' name='l1' value='leg1' /></form>
+      <form method='get'><input type='submit' name='l2' value='leg2' /></form>
+      <form method='get'><input type='submit' name='l3' value='leg3' /></form>
+      <form method='get'><input type='submit' name='l4' value='leg4' /></form>
+      <form method='get'><input type='submit' name='l5' value='leg5' /></form>
+    </div>
+  </div>
+
+</body>
+</html>
+)";
 
 WiFiServer server(80);
 
