@@ -183,8 +183,8 @@ const char html[] = R"(
       <div class='task-title'>Task</div>
     <div class='task-buttons'>
       <form method='get'><input type='submit' name='t1' value='Dance' /></form>
-      <form method='get'><input type='submit' name='t2' value='task2' /></form>
-      <form method='get'><input type='submit' name='t3' value='task3' /></form>
+      <form method='get'><input type='submit' name='t2' value='LEDON' /></form>
+      <form method='get'><input type='submit' name='t3' value='LEDOFF' /></form>
     </div>
   </div>
 
@@ -379,6 +379,14 @@ void loop() {
           // TaskParty
           leg_state = 15;
           head_state = 1;
+        }
+        if (currentLine.endsWith("GET /?t2")) {
+          // TaskParty
+          digitalWrite(5, HIGH);
+        }
+        if (currentLine.endsWith("GET /?t3")) {
+          // TaskParty
+          digitalWrite(5, LOW);
         }
       }
     }
