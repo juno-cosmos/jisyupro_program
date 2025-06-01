@@ -13,12 +13,32 @@
 
 ### 使い方
 #### projectの作成
-
+* PlatformIOのホーム画面から、New Projectを選択
+* Project Nameを入力し、Boardを選択
+  * BoardはESP32 Dev Moduleを選択
+* FrameworkはArduinoを選択
+* Locationはjisypuro_program内に作成する
+* Finishを押すと、プロジェクトが作成される
 #### コンパイル・書き込み
-
+* platformio.iniの書き換え
+  * 各プロジェクト内のplatformio.iniを参照
+  * ボーレートや書き込みポートの設定を行う
+```cpp
+[env:esp32dev]
+platform = espressif32
+board = esp32dev
+framework = arduino
+lib_deps = ${PROJECT_DIR}/lib/IcsClass_V210
+            ${PROJECT_DIR}/lib/ESP32Servo
+monitor_speed = 1250000
+```
 #### ライブラリの追加
-
+* platformio.iniのlib_depsにライブラリを追加する
+  * 例: IcsClass_V210, ESP32Servo
+* または、libディレクトリにライブラリのフォルダを配置する
 #### htmlに書き込む
+* guardian_control_wifiとmayfes_guardian_controlのように、htmlをESP32に書き込む場合は、それらのprojectを参考にして、入れる。
+* それ以外にもhtmlファイルを別途入れる場合もあり、それはいつか記述する。
 
 ## krsシリーズをICS変換基板を用いてArduino/ESP32で動かす
 * 公式ドキュメントを参照する
@@ -82,3 +102,4 @@ IcsHardSerialClass krs2(&Serial2, EN_PIN2, BAUDRATE, TIMEOUT);
 * [ICS変換基板の使用方法（6-2）　直線補間でサーボを滑らかに動かす](https://kondo-robot.com/faq/ics_board_-tutorial6-2)
 
 ## wifi関連
+

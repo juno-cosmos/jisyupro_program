@@ -27,12 +27,20 @@ PlatformIO IDE
   * 仕様
     * 線形補完を実装したガーディアンの各種移動動作を記述している
     * ESP32本体をSoftAPモードでもってサーバー/Wifiのアクセスポイント化し、そのアクセスポイントにクライアント側が接続することでコントローラにアクセスできる
-    * コントローラのHTMLも中に記述してある
+        * アクセスポイントの情報はsrcの中を参照
+    * コントローラのHTMLも内部に記述してある
   * 使用したライブラリ
     * [IcsClass_V210](https://kondo-robot.com/faq/ics-library-a2)
       * [krs3301](https://kondo-robot.com/product/krs-3301-ics)を動かすために利用
       * どのように利用するかは[環境構築・動作手順書](./setup.md)に記述予定
     * ESP32Servo
       * pwmサーボを動かすために利用
+* mayfes_guardian_control
+    * 2025年5月に行われたガーディアンの制御用のコード
+    * 仕様
+        * スレッドを2つにわけて、1つはサーボの制御、もう1つはWebサーバーの制御を行う。
+        * コントローラーによるボタンのイベントを感知し、global変数であるstateを管理する。
+        * FreeRTOSのタスク（headTask, legTask）で頭部と脚部の動作を並列処理、stateを参照することでスムーズな切り替えを実現する。
+        * その他の仕様は`guardian_control_wifi`と同様。
 * その他のproject
   * 未整理
